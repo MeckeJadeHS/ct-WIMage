@@ -40,6 +40,12 @@ rem DIESE OPTION FUNKTIONIERT NUR UNTER WINDOWS 8.1!
 
 set Refresh=0
 
+rem Dieses Skript wird an verschiedenen Stellen von pause-Statements unterbrochen. 
+rem Dies dient der Übersicht und ist notwendig für die interaktion mit dem Anwender.
+rem Gleichzeitig stören diese Statements, wenn das Skript als Task aus der Aufgaben-
+rem planung aufgerufen wird - das Skript wird dann einfach nicht beendetr.
+
+set task=0
 rem ---------------- Optik anpassen --------------
 
 cls
@@ -112,6 +118,16 @@ if /i "%1"=="/shutdown" set option=1
 if /i "%1"=="-shutdown" set option=1
 if %option%==1 (
   set Shutdown=1
+  shift /1
+  goto parseargs
+)
+rem Läuft in task
+if /i "%1"=="/t" set option=1
+if /i "%1"=="-t" set option=1
+if /i "%1"=="/task" set option=1
+if /i "%1"=="-task" set option=1
+if %option%==1 (
+  set task=1
   shift /1
   goto parseargs
 )
@@ -296,7 +312,11 @@ echo.
 echo %weiss%*** Fertig! ***%gruen%
 if "%shutdown%" equ "1" shutdown -s -t 0
 echo.
+if %task%==0 (
 pause
+) else (
+exit
+)
 goto :eof
 
 rem Bedingung nicht erfüllt
@@ -323,13 +343,21 @@ reagentc /enable >nul 2>nul
 reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce /v "enablewinre" /f >nul 2>nul
 %workdir%%vshadow% -ds=%SHADOW_ID_1% >nul 2>nul
 echo Aufraeumen fertig.
+if %task%==0 (
 pause
+) else (
+exit
+)
 goto :eof
 
 rem Abbruch durch Benutzer
 :abbruch
 echo %weiss%Abbruch durch Benutzer%gruen%
+if %task%==0 (
 pause
+) else (
+exit
+)
 goto :eof
 
 :hilfe
@@ -338,17 +366,23 @@ echo %~nx0 ergaenzt die Datei Install.wim durch ein weiteres Image.
 echo Fehlt die Datei, wird eine neue erzeugt.
 echo.
 echo %~nx0 versteht folgende Befehlszeilen-Argumente:
+echo   /D "Beschreibung" - "Beschreibung" als Beschreibung der Sicherung speichern
 echo   /Reset            - Das neue Image als Wiederherstellungs-Image festlegen
 echo   /Refresh          - Das neue Image als Auffrischungs-Image festlegen
 echo   /S                - Windows nach Abschluss der Sicherung herunterfahren
 echo   /Shutdown         - Windows nach Abschluss der Sicherung herunterfahren
-echo   /D "Beschreibung" - "Beschreibung" als Beschreibung der Sicherung speichern
+echo   /T                - Skript als Task ohne User Interaktion ausführen
+echo   /Task             - Skript als Task ohne User Interaktion ausführen
 echo.
 echo %~nx0 muss mit Administratorrechten gestartet werden!
 echo.
 echo %weiss%%Hinweis%%gruen%
 echo.
+if %task%==0 (
 pause
+) else (
+exit
+)
 goto :eof
 ;
 REM Erstellt 2014-2021 von Axel Vahldiek/c't
