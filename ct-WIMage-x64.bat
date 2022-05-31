@@ -46,6 +46,19 @@ rem Gleichzeitig stören diese Statements, wenn das Skript als Task aus der Aufga
 rem planung aufgerufen wird - das Skript wird dann einfach nicht beendetr.
 
 set task=0
+
+rem Wenn das Skript als Taks läuft, dann will man trotzdem wissen welche Fehler ggf. 
+rem auftreten. Dann sollte das logging in eine Datei aktiviert sein. Standardmäßig
+rem wird die ausgabe bei aktiviertem Logging in ct-WIMage-x64.log neben die .bat 
+rem geschrieben.
+
+set logging=1
+if %logging%==1 (
+  set logdir=%~d0%~p0
+  set log=%logdir%ct-WIMage-x64.log
+  echo Logfile=%log%
+)
+
 rem ---------------- Optik anpassen --------------
 
 cls
@@ -71,6 +84,11 @@ echo ************************************
 echo.
 echo %hinweis%%weiss%
 echo.
+if %logging%==1 (
+echo. %date%-%time% Start logging into logfile %log%
+echo. %date%-%time% Start script >> %log%
+)
+			 
 
 set description=
 set operation=*** Befehlszeilen-Argumente pruefen ***
@@ -131,6 +149,21 @@ if %option%==1 (
   shift /1
   goto parseargs
 )
+rem Logging gewünscht?
+set option=0
+if /i "%1"=="/l" set option=1
+if /i "%1"=="-l" set option=1
+if /i "%1"=="/log" set option=1
+if /i "%1"=="-log" set option=1
+if %option%==1 (
+  set logging=1 
+  set log=%~d0%~p0%~2
+  rem dir/file check missing
+  echo %log%
+  shift /1
+  shift /1
+  goto parseargs
+)					  
 color %rot%
 echo *** Unbekanntes Befehlszeilen-Argument: %1 ***
 echo.
