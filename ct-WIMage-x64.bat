@@ -54,8 +54,8 @@ rem geschrieben.
 
 set logging=1
 if %logging%==1 (
-  set logdir=%~d0%~p0
-  set log=%logdir%ct-WIMage-x64.log
+  set logdir=%workdir%
+  set log=%logdir%ct-WIMage.log
   echo Logfile=%log%
 )
 
@@ -85,10 +85,9 @@ echo.
 echo %hinweis%%weiss%
 echo.
 if %logging%==1 (
-echo. %date%-%time% Start logging into logfile %log%
-echo. %date%-%time% Start script >> %log%
+echo %date%-%time% Start logging into logfile %log%
+echo %date%-%time% Start c't-wimage >> %log%
 )
-			 
 
 set description=
 set operation=*** Befehlszeilen-Argumente pruefen ***
@@ -163,7 +162,7 @@ if %option%==1 (
   shift /1
   shift /1
   goto parseargs
-)					  
+)
 color %rot%
 echo *** Unbekanntes Befehlszeilen-Argument: %1 ***
 echo.
@@ -343,6 +342,9 @@ if errorlevel 1 goto fehler2
 echo.
 echo.
 echo %weiss%*** Fertig! ***%gruen%
+if %logging%==1 (
+echo %date%-%time% Finished script >> %log%
+)
 if "%shutdown%" equ "1" shutdown -s -t 0
 echo.
 if %task%==0 (
@@ -368,6 +370,9 @@ echo. %rot%
 echo %text%
 echo.
 echo %rot%%operation%%gruen%
+if %logging%==1 (
+echo %date%-%time% %operation% >> %log%
+)
 echo.
 echo %weiss%%hinweis%%gruen%
 echo.
